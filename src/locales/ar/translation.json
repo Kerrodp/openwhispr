@@ -282,6 +282,9 @@
         "openai_gpt_4_1_nano": "GPT-4.1 بأقل زمن انتقال",
         "anthropic_claude_fable_5_1": "نموذج Anthropic الأكثر قدرة، فئة Mythos",
         "anthropic_claude_fable_5": "الرائد السابق من فئة Mythos",
+        "anthropic_claude_opus_5_5": "أحدث نموذج Opus للاستنتاج المعقد، سياق 1 مليون",
+        "anthropic_claude_sonnet_5_5": "أحدث Sonnet: سريع وقادر للعمل اليومي، سياق 1 مليون",
+        "anthropic_claude_haiku_5_5": "أسرع نموذج Claude وأقلّه تكلفة، سياق 1 مليون",
         "anthropic_claude_sonnet_5": "نموذج مساعد سريع وقادر بتكلفة أقل",
         "anthropic_claude_sonnet_4_6": "أداء متوازن",
         "anthropic_claude_sonnet_4_5": "جيل Sonnet السابق",
@@ -302,7 +305,7 @@
         "openai_gpt_5_6_terra": "GPT-5.6 متوازن للعمل اليومي",
         "openai_gpt_5_6_luna": "GPT-5.6 الأسرع والأقل تكلفة",
         "openai_gpt_5_5": "نموذج رائد للاستنتاج المعقد",
-        "anthropic_claude_opus_5": "نموذج Opus الأكثر قدرة، سياق 1 مليون",
+        "anthropic_claude_opus_5": "نموذج Opus الرائد السابق، سياق 1 مليون",
         "anthropic_claude_opus_4_8": "نموذج Opus قوي مضبوط من أجل الصدق والموثوقية",
         "anthropic_claude_opus_4_7": "نموذج Opus قوي",
         "anthropic_claude_opus_4_6": "جيل Opus السابق، سياق 1 مليون",
@@ -3500,6 +3503,10 @@
       "description": "تنظيف النصوص المفرَّغة ومعالجة الأوامر وإصلاح الأخطاء مع الحفاظ على أسلوبك.",
       "enableTextCleanup": "تمكين تنظيف النص",
       "enableTextCleanupDescription": "استخدم الذكاء الاصطناعي لإزالة كلمات الحشو، وإصلاح القواعد، وتنسيق علامات الترقيم",
+      "longCleanup": {
+        "toggle": "نموذج منفصل للإملاءات الطويلة",
+        "minWords": "الحد الأدنى لعدد الكلمات"
+      },
       "modes": {
         "openwhispr": "OpenWhispr Cloud",
         "providers": "مزودو الخدمات السحابية",

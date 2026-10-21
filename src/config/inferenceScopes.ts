@@ -76,6 +76,24 @@ export const INFERENCE_SCOPES = {
     fallbackScope: "dictationAgent",
     optional: true,
   },
+  // Optional override for dictations of at least `longCleanupMinWords` words.
+  // Unset fields resolve to dictationCleanup, and the UI offers only BYOK, so
+  // remoteUrl is deliberately absent, as on the vision override.
+  dictationCleanupLong: {
+    cloudPurpose: "cleanup",
+    storeKeys: {
+      mode: "longCleanupMode",
+      provider: "longCleanupProvider",
+      model: "longCleanupModel",
+      cloudMode: "longCleanupCloudMode",
+      cloudBaseUrl: "longCleanupCloudBaseUrl",
+      customApiKey: "longCleanupCustomApiKey",
+      disableThinking: "longCleanupDisableThinking",
+      reasoningEffort: "longCleanupReasoningEffort",
+    },
+    fallbackScope: "dictationCleanup",
+    optional: true,
+  },
   noteFormatting: {
     cloudPurpose: "noteFormatting",
     storeKeys: {

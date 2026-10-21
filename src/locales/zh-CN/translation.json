@@ -1860,6 +1860,10 @@
       "description": "整理转录文本、处理指令、修正错误，同时保留你的语气风格。",
       "enableTextCleanup": "启用文本整理",
       "enableTextCleanupDescription": "AI 去除语气词，修正语法和标点",
+      "longCleanup": {
+        "toggle": "长听写使用单独的模型",
+        "minWords": "最少字数"
+      },
       "modes": {
         "openwhispr": "OpenWhispr Cloud",
         "providers": "云服务商",
@@ -2676,6 +2680,9 @@
         "openai_gpt_4_1_nano": "最低延迟 GPT-4.1",
         "anthropic_claude_fable_5_1": "Anthropic 最强大的模型，Mythos 级",
         "anthropic_claude_fable_5": "上一代 Mythos 级旗舰模型",
+        "anthropic_claude_opus_5_5": "最新 Opus 模型，适合复杂推理，1M 上下文",
+        "anthropic_claude_sonnet_5_5": "最新 Sonnet：快速强大，适合日常工作，1M 上下文",
+        "anthropic_claude_haiku_5_5": "速度最快、成本最低的 Claude 模型，1M 上下文",
         "anthropic_claude_sonnet_5": "快速且强大的助手模型，成本更低",
         "anthropic_claude_sonnet_4_6": "均衡性能",
         "anthropic_claude_sonnet_4_5": "上一代 Sonnet",
@@ -2696,7 +2703,7 @@
         "openai_gpt_5_6_terra": "均衡的 GPT-5.6，适合日常工作",
         "openai_gpt_5_6_luna": "速度最快、成本最低的 GPT-5.6",
         "openai_gpt_5_5": "复杂推理前沿模型",
-        "anthropic_claude_opus_5": "最强大的 Opus 模型，1M 上下文",
+        "anthropic_claude_opus_5": "上一代 Opus 旗舰模型，1M 上下文",
         "anthropic_claude_opus_4_8": "强大的 Opus 模型，注重诚实与可靠",
         "anthropic_claude_opus_4_7": "强大的 Opus 模型",
         "anthropic_claude_opus_4_6": "上一代 Opus，1M 上下文",

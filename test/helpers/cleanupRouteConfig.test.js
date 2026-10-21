@@ -108,3 +108,53 @@ test("the agent route keeps its provider defaults", async (t) => {
   assert.equal(route.config.temperature, undefined);
   assert.equal(route.config.requireCompleteOutput, undefined);
 });
+
+// A long dictation carries its own model and provider on the cleanup route;
+// a short one leaves both to the cleanup scope, as before.
+test("the long-dictation override sets the route's model and provider, short ones don't", async (t) => {
+  const { vite } = await loadAudioManager(t, {
+    cachePrefix: "openwhispr-cleanup-route-long-test-",
+    settingsKey: "__cleanupRouteLongSettings",
+    mockModules: {
+      "/stores/settingsStore": `
+        export const getSettings = () => globalThis.__cleanupRouteLongSettings;
+        export const getEffectiveCleanupModel = () => "claude-haiku-5-5";
+        export const selectResolvedLLMConfig = () => ({ model: "claude-haiku-5-5", provider: "anthropic", mode: "providers" });
+        export const isCloudCleanupMode = () => false;
+        export const isCloudDictationAgentMode = () => false;
+        export const isCloudTranslationMode = () => false;
+      `,
+      "/longCleanupInference": `
+        export const selectLongCleanupTarget = (_settings, text) =>
+          text.split(" ").length >= 3
+            ? { model: "claude-sonnet-5-5", config: { provider: "anthropic", reasoningEffort: "low", disableThinking: true } }
+            : null;
+      `,
+      "/dictationAgentInference": `
+        export const resolveDictationAgentInference = () => ({ reachable: false, model: "", config: {} });
+        export const resolveDictationAgentVisionInference = () => ({ active: false, model: "", config: {} });
+      `,
+    },
+  });
+  const settings = {
+    useCleanupModel: true,
+    cleanupDisableThinking: true,
+    cleanupReasoningEffort: "medium",
+  };
+  const { resolveReasoningRoute } = await vite.ssrLoadModule("/helpers/audioManager.js");
+
+  const short = resolveReasoningRoute("clean this", settings, "Jarvis", false, false);
+  assert.equal(short.kind, "cleanup");
+  assert.equal(short.model, undefined);
+  assert.equal(short.config.provider, undefined);
+  assert.equal(short.config.reasoningEffort, "medium");
+
+  const long = resolveReasoningRoute("so um clean this up", settings, "Jarvis", false, false);
+  assert.equal(long.kind, "cleanup");
+  assert.equal(long.model, "claude-sonnet-5-5");
+  assert.equal(long.config.provider, "anthropic");
+  assert.equal(long.config.reasoningEffort, "low");
+  assert.equal(long.config.inferenceScope, "dictationCleanup", "policy still judges it as cleanup");
+  assert.equal(long.config.requireCompleteOutput, true);
+  assert.equal(long.config.temperature, 0);
+});

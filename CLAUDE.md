@@ -396,6 +396,7 @@ Settings stored in localStorage with these keys:
 - `customDictionary`: JSON array of words/phrases for improved transcription accuracy
 - `keepLocalModelLoaded`: Keeps the shared llama-server loaded instead of unloading it after 5 idle minutes (#1207; default off). Synced to main with `sync-startup-preferences`, outside its policy gate; `LlamaServerManager.setKeepResident` acts only on a change, since every window resyncs on load
 - `toneStyleEnabled`, `toneStyles`: whether Tone & Style is on (the setup dialog's Finish, or Settings' Tones & voices switch) and the tone picked per kind of app (JSON, normalized by `normalizeToneStyles`)
+- `useLongCleanupModel`, `longCleanupMinWords`, `longCleanup*`: an optional BYOK cleanup model for dictations of at least `longCleanupMinWords` words (default 150, clamped 10–10,000; `src/config/longCleanup.js` counts words with `Intl.Segmenter`, so CJK counts per word). It is the `dictationCleanupLong` scope (`optional`, falls back to `dictationCleanup`, managed and policy-judged as cleanup), resolved by `selectLongCleanupTarget` in `src/helpers/longCleanupInference.js`; `resolveReasoningRoute` puts its `model` and provider on the cleanup route, and the three cleanup call sites in `audioManager.js` use `route.model` before the cleanup model (and skip Cloud cleanup when it is set). The translation chain's cleanup step and Note Formatting don't use it. UI: Settings → AI Models → Dictation Cleanup (`LongCleanupSettings.tsx`)
 - `emailDraftTarget`: Where email drafts open (`auto`, `gmail`, `gmailSend`, `outlookWork`, `outlookPersonal`, `mailto`); `gmailSend` sends through the Gmail connector's approval card ("Send from chat (Gmail)"); an unknown value reads as `auto`
 
 Secret env vars (12 total: 7 BYOK API keys + 5 enterprise cloud creds — see `SECRET_KEYS` in `environment.js`) are encrypted at rest via Electron `safeStorage` and stored as per-key files under `userData/secure-keys/`. They are loaded into `process.env` at startup by `EnvironmentManager.init()`. Renderer reads them via IPC (`get-*-key`) and writes via debounced IPC (`save-*-key`). On Linux without a keyring, secrets fall back to plaintext.
@@ -434,16 +435,19 @@ Non-secret env vars persisted to `.env` (via `saveAllKeysToEnvFile()`):
   - **Anthropic** (Via IPC bridge to avoid CORS):
     - Claude Fable 5.1 (`claude-fable-5-1`) - Most capable Claude model, Mythos-class, 1M context
     - Claude Fable 5 (`claude-fable-5`) - Previous Mythos-class flagship, 1M context
+    - Claude Opus 5.5 (`claude-opus-5-5`) - Latest Opus model for complex reasoning, 1M context
+    - Claude Sonnet 5.5 (`claude-sonnet-5-5`) - Latest Sonnet: fast and capable for everyday work, 1M context
+    - Claude Haiku 5.5 (`claude-haiku-5-5`) - Fastest, lowest-cost Claude model, 1M context
     - Claude Sonnet 5 (`claude-sonnet-5`) - Fast, capable agentic model at lower cost
     - Claude Sonnet 4.6 (`claude-sonnet-4-6`) - Balanced performance
     - Claude Haiku 4.5 (`claude-haiku-4-5`) - Fast with near-frontier intelligence
-    - Claude Opus 5 (`claude-opus-5`) - Most capable Opus model, 1M context
+    - Claude Opus 5 (`claude-opus-5`) - Previous Opus flagship, 1M context
     - Claude Opus 4.8 (`claude-opus-4-8`) - Powerful Opus model tuned for honesty and reliability, 1M context
     - Claude Opus 4.7 (`claude-opus-4-7`) - Powerful Opus model, 1M context
     - Claude Opus 4.6 (`claude-opus-4-6`) - Previous Opus generation, 1M context
     - Claude Sonnet 4.5 (`claude-sonnet-4-5`) - Previous Sonnet generation
     - Claude Opus 4.5 (`claude-opus-4-5`) - Earlier Opus model
-    - Models from Opus 4.7 onward reject `temperature` (`supportsTemperature: false`); the Anthropic IPC bridge sends no thinking parameters, so no Anthropic entry carries `supportsThinking`
+    - Models from Opus 4.7 onward (including the 5.5 generation) reject `temperature` (`supportsTemperature: false`); the Anthropic IPC bridge sends no thinking parameters, so no Anthropic entry carries `supportsThinking`
   - **Google Gemini** (Direct API integration):
     - Gemini 3.5 Flash (`gemini-3.5-flash`) - Latest fast, high-capability Gemini model
     - Gemini 3.5 Flash Lite (`gemini-3.5-flash-lite`) - Fastest, most cost-effective 3.5 model

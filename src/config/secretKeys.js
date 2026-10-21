@@ -111,6 +111,13 @@ const BYOK_API_KEYS = [
     storeKey: "dictationAgentVisionCustomApiKey",
   },
   {
+    base: "long-cleanup-custom",
+    env: "LONG_CLEANUP_CUSTOM_API_KEY",
+    get: "getLongCleanupCustomKey",
+    save: "saveLongCleanupCustomKey",
+    storeKey: "longCleanupCustomApiKey",
+  },
+  {
     base: "chat-agent-custom",
     env: "CHAT_AGENT_CUSTOM_API_KEY",
     get: "getChatAgentCustomKey",
