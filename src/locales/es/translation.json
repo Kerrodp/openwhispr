@@ -1912,6 +1912,10 @@
       "description": "Corrige transcripciones, gestiona comandos y soluciona errores preservando tu tono.",
       "enableTextCleanup": "Activar corrección de texto",
       "enableTextCleanupDescription": "La IA elimina muletillas, corrige gramática y puntuación",
+      "longCleanup": {
+        "toggle": "Modelo aparte para dictados largos",
+        "minWords": "Mínimo de palabras"
+      },
       "modes": {
         "openwhispr": "OpenWhispr Cloud",
         "providers": "Proveedores en la nube",

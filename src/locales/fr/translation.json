@@ -2154,6 +2154,10 @@
       "description": "Corrige les transcriptions, gère les commandes et corrige les erreurs tout en préservant votre ton.",
       "enableTextCleanup": "Activer la correction de texte",
       "enableTextCleanupDescription": "L'IA supprime les mots de remplissage, corrige la grammaire et la ponctuation",
+      "longCleanup": {
+        "toggle": "Modèle distinct pour les longues dictées",
+        "minWords": "Nombre minimum de mots"
+      },
       "modes": {
         "openwhispr": "OpenWhispr Cloud",
         "providers": "Fournisseurs cloud",

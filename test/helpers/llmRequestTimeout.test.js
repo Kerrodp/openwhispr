@@ -48,6 +48,7 @@ test("a deadline error carries the timeout code and the seconds it waited", asyn
 // for; a scope added here without a verdict fails the test.
 const DEADLINE_CLASS_BY_SCOPE = {
   dictationCleanup: "interactive", // user is waiting to paste
+  dictationCleanupLong: "interactive", // a long dictation, still waiting to paste
   dictationAgent: "interactive",
   dictationAgentVision: "interactive",
   dictationTranslation: "interactive",

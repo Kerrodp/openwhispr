@@ -40,6 +40,7 @@ const AUTO_REASONING_EFFORT_VALUE = "__auto__";
 
 const MODE_LABEL_PREFIX: Record<InferenceScope, string> = {
   dictationCleanup: "settingsPage.aiModels.modes",
+  dictationCleanupLong: "settingsPage.aiModels.modes",
   noteFormatting: "settingsPage.aiModels.modes",
   dictationAgent: "dictationAgent.modes",
   dictationAgentVision: "dictationAgent.modes",

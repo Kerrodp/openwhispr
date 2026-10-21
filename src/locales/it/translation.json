@@ -1860,6 +1860,10 @@
       "description": "Correggi le trascrizioni, gestisci i comandi e risolvi gli errori preservando il tuo tono.",
       "enableTextCleanup": "Attiva correzione testo",
       "enableTextCleanupDescription": "L'IA rimuove parole superflue, corregge grammatica e punteggiatura",
+      "longCleanup": {
+        "toggle": "Modello separato per dettature lunghe",
+        "minWords": "Numero minimo di parole"
+      },
       "modes": {
         "openwhispr": "OpenWhispr Cloud",
         "providers": "Provider cloud",

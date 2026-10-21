@@ -1860,6 +1860,10 @@
       "description": "整理轉錄文字、處理指令、修正錯誤，同時保留你的語調。",
       "enableTextCleanup": "啟用文字整理",
       "enableTextCleanupDescription": "AI 移除語助詞，修正文法和標點",
+      "longCleanup": {
+        "toggle": "長聽寫使用獨立的模型",
+        "minWords": "最少字數"
+      },
       "modes": {
         "openwhispr": "OpenWhispr Cloud",
         "providers": "雲端供應商",

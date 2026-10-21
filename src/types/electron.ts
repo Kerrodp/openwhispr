@@ -2450,6 +2450,8 @@ declare global {
       saveDictationAgentCustomKey?: (key: string) => Promise<void>;
       getDictationAgentVisionCustomKey?: () => Promise<string | null>;
       saveDictationAgentVisionCustomKey?: (key: string) => Promise<void>;
+      getLongCleanupCustomKey?: () => Promise<string | null>;
+      saveLongCleanupCustomKey?: (key: string) => Promise<void>;
       getChatAgentCustomKey?: () => Promise<string | null>;
       saveChatAgentCustomKey?: (key: string) => Promise<void>;
 

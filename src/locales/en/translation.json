@@ -2154,6 +2154,10 @@
       "description": "Clean up transcriptions, handle commands, and fix errors while preserving your tone.",
       "enableTextCleanup": "Enable text cleanup",
       "enableTextCleanupDescription": "Use AI to remove filler words, fix grammar, and polish punctuation",
+      "longCleanup": {
+        "toggle": "Separate model for long dictations",
+        "minWords": "Minimum words"
+      },
       "modes": {
         "openwhispr": "OpenWhispr Cloud",
         "providers": "Cloud Providers",

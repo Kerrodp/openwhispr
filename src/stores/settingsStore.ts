@@ -35,6 +35,7 @@ import {
   usesCloudModelCatalog,
 } from "../config/inferenceScopes";
 import { normalizeChineseScriptPreference } from "../utils/chineseScript";
+import { LONG_CLEANUP_DEFAULT_MIN_WORDS, clampLongCleanupMinWords } from "../config/longCleanup";
 import { adjustBedrockModelForRegion } from "../utils/bedrockRegions";
 import modelRegistryData from "../models/modelRegistryData.json";
 import { pickDefaultModelId } from "../models/providerDefaultModel";
@@ -285,6 +286,7 @@ const BOOLEAN_SETTINGS = new Set([
   "keepLocalModelLoaded",
   "voiceAgentScreenContext",
   "useDictationAgentVisionModel",
+  "useLongCleanupModel",
   "useDictationTranslation",
   "translationDisableThinking",
   "preferBuiltInMic",
@@ -311,6 +313,7 @@ const BOOLEAN_SETTINGS = new Set([
   "cleanupDisableThinking",
   "dictationAgentDisableThinking",
   "dictationAgentVisionDisableThinking",
+  "longCleanupDisableThinking",
   "noteFormattingDisableThinking",
   "chatAgentDisableThinking",
   "notificationsEnabled",
@@ -334,6 +337,7 @@ const ARRAY_SETTINGS = new Set([
 
 const NUMERIC_SETTINGS = new Set([
   "micWarmHoldSeconds",
+  "longCleanupMinWords",
   "audioRetentionDays",
   "transcriptRetentionDays",
   "whisperVadThreshold",
@@ -1026,6 +1030,18 @@ export interface SettingsState
   dictationAgentVisionCloudBaseUrl: string;
   dictationAgentVisionCustomApiKey: string;
 
+  // Optional cleanup model for dictations of at least longCleanupMinWords words.
+  useLongCleanupModel: boolean;
+  longCleanupMinWords: number;
+  longCleanupMode: InferenceMode;
+  longCleanupProvider: string;
+  longCleanupModel: string;
+  longCleanupCloudMode: string;
+  longCleanupCloudBaseUrl: string;
+  longCleanupCustomApiKey: string;
+  longCleanupDisableThinking: boolean;
+  longCleanupReasoningEffort: string;
+
   cleanupDisableThinking: boolean;
   dictationAgentDisableThinking: boolean;
   dictationAgentVisionDisableThinking: boolean;
@@ -1059,6 +1075,14 @@ export interface SettingsState
   setDictationAgentVisionCloudBaseUrl: (value: string) => void;
   setDictationAgentVisionCustomApiKey: (key: string) => void;
   setDictationAgentVisionDisableThinking: (value: boolean) => void;
+  setUseLongCleanupModel: (value: boolean) => void;
+  setLongCleanupMinWords: (value: number) => void;
+  setLongCleanupProvider: (value: string) => void;
+  setLongCleanupModel: (value: string) => void;
+  setLongCleanupCloudMode: (value: string) => void;
+  setLongCleanupCloudBaseUrl: (value: string) => void;
+  setLongCleanupCustomApiKey: (key: string) => void;
+  setLongCleanupDisableThinking: (value: boolean) => void;
 
   setTranscriptionMode: (mode: InferenceMode) => void;
   setRemoteTranscriptionType: (type: SelfHostedType) => void;
@@ -1419,6 +1443,7 @@ const SECRET_IPC_SAVERS = {
   translationCustom: "saveTranslationCustomKey",
   dictationAgentCustom: "saveDictationAgentCustomKey",
   dictationAgentVisionCustom: "saveDictationAgentVisionCustomKey",
+  longCleanupCustom: "saveLongCleanupCustomKey",
   chatAgentCustom: "saveChatAgentCustomKey",
   bedrockAccessKeyId: "saveBedrockAccessKeyId",
   bedrockSecretAccessKey: "saveBedrockSecretAccessKey",
@@ -1470,6 +1495,7 @@ const STALE_SECRET_LOCALSTORAGE_KEYS = [
   "translationCustomApiKey",
   "dictationAgentCustomApiKey",
   "dictationAgentVisionCustomApiKey",
+  "longCleanupCustomApiKey",
   "chatAgentCustomApiKey",
   "bedrockAccessKeyId",
   "bedrockSecretAccessKey",
@@ -1982,6 +2008,20 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   dictationAgentVisionCloudBaseUrl: readString("dictationAgentVisionCloudBaseUrl", ""),
   dictationAgentVisionCustomApiKey: readString("dictationAgentVisionCustomApiKey", ""),
 
+  useLongCleanupModel: readBoolean("useLongCleanupModel", false),
+  longCleanupMinWords: clampLongCleanupMinWords(
+    readNumber("longCleanupMinWords", LONG_CLEANUP_DEFAULT_MIN_WORDS)
+  ),
+  // BYOK-only, like the vision override: Cloud cleanup picks its own model.
+  longCleanupMode: "providers" as InferenceMode,
+  longCleanupProvider: readString("longCleanupProvider", ""),
+  longCleanupModel: readString("longCleanupModel", ""),
+  longCleanupCloudMode: readString("longCleanupCloudMode", "openwhispr"),
+  longCleanupCloudBaseUrl: readString("longCleanupCloudBaseUrl", ""),
+  longCleanupCustomApiKey: readString("longCleanupCustomApiKey", ""),
+  longCleanupDisableThinking: readBoolean("longCleanupDisableThinking", true),
+  longCleanupReasoningEffort: readString("longCleanupReasoningEffort", ""),
+
   cleanupDisableThinking: readBoolean("cleanupDisableThinking", true),
   dictationAgentDisableThinking: readBoolean("dictationAgentDisableThinking", true),
   dictationAgentVisionDisableThinking: readBoolean("dictationAgentVisionDisableThinking", true),
@@ -2039,6 +2079,22 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   setDictationAgentVisionDisableThinking: createBooleanSetter(
     "dictationAgentVisionDisableThinking"
   ),
+  setUseLongCleanupModel: createBooleanSetter("useLongCleanupModel"),
+  setLongCleanupMinWords: (value: number) => {
+    const words = clampLongCleanupMinWords(value);
+    if (isBrowser) localStorage.setItem("longCleanupMinWords", String(words));
+    set({ longCleanupMinWords: words });
+  },
+  setLongCleanupProvider: createStringSetter("longCleanupProvider"),
+  setLongCleanupModel: createStringSetter("longCleanupModel"),
+  setLongCleanupCloudMode: createStringSetter("longCleanupCloudMode"),
+  setLongCleanupCloudBaseUrl: createStringSetter("longCleanupCloudBaseUrl"),
+  setLongCleanupCustomApiKey: createSecretSetter(
+    "longCleanupCustomApiKey",
+    "longCleanupCustom",
+    "custom"
+  ),
+  setLongCleanupDisableThinking: createBooleanSetter("longCleanupDisableThinking"),
   setNoteFormattingDisableThinking: createBooleanSetter("noteFormattingDisableThinking"),
   setChatAgentDisableThinking: createBooleanSetter("chatAgentDisableThinking"),
 
@@ -2982,6 +3038,7 @@ const SECRET_SCOPE_KEY_SETTERS = {
   translationCustomApiKey: "setTranslationCustomApiKey",
   dictationAgentCustomApiKey: "setDictationAgentCustomApiKey",
   dictationAgentVisionCustomApiKey: "setDictationAgentVisionCustomApiKey",
+  longCleanupCustomApiKey: "setLongCleanupCustomApiKey",
   chatAgentCustomApiKey: "setChatAgentCustomApiKey",
 } as const;
 
@@ -3397,6 +3454,7 @@ export async function initializeSettings(): Promise<void> {
         translationCustom,
         dictationAgentCustom,
         dictationAgentVisionCustom,
+        longCleanupCustom,
         chatAgentCustom,
         bedrockAccessKeyId,
         bedrockSecretAccessKey,
@@ -3423,6 +3481,7 @@ export async function initializeSettings(): Promise<void> {
         window.electronAPI.getTranslationCustomKey?.(),
         window.electronAPI.getDictationAgentCustomKey?.(),
         window.electronAPI.getDictationAgentVisionCustomKey?.(),
+        window.electronAPI.getLongCleanupCustomKey?.(),
         window.electronAPI.getChatAgentCustomKey?.(),
         window.electronAPI.getBedrockAccessKeyId?.(),
         window.electronAPI.getBedrockSecretAccessKey?.(),
@@ -3457,6 +3516,7 @@ export async function initializeSettings(): Promise<void> {
             dictationAgentVisionCustom,
             "saveDictationAgentVisionCustomKey",
           ],
+          ["longCleanupCustomApiKey", longCleanupCustom, "saveLongCleanupCustomKey"],
           ["chatAgentCustomApiKey", chatAgentCustom, "saveChatAgentCustomKey"],
         ])),
         bedrockSecretAccessKey: bedrockSecretAccessKey || "",

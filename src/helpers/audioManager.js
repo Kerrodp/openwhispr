@@ -124,6 +124,7 @@ import {
   resolveDictationAgentInference,
   resolveDictationAgentVisionInference,
 } from "./dictationAgentInference";
+import { selectLongCleanupTarget } from "./longCleanupInference";
 import { providerSupportsImages } from "../services/ai/inferenceProviders";
 import { resolveDictationTranslationInference } from "./dictationTranslationInference";
 import { resolvePrompt, appendScreenContextSuffix } from "../config/prompts";
@@ -404,6 +405,18 @@ function resolveReasoningRoute(
     };
   }
   if (kind === "cleanup") {
+    // A long dictation may run on its own BYOK model; `model` on the route
+    // marks that, and callers use it in place of the cleanup scope's model.
+    const long = selectLongCleanupTarget(settings, text);
+    logger.logReasoning("CLEANUP_LENGTH_ROUTE", { longModel: !!long, model: long?.model });
+    if (long) {
+      return {
+        kind: "cleanup",
+        cleanupReachable,
+        model: long.model,
+        config: { ...cleanupConfig, ...long.config },
+      };
+    }
     return { kind: "cleanup", cleanupReachable, config: cleanupConfig };
   }
   return { kind: "skip", cleanupReachable };
@@ -3434,7 +3447,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
           return translatedText;
         }
 
-        const targetModel = route.kind === "agent" ? route.model : cleanupModel;
+        const targetModel = route.kind === "agent" ? route.model : route.model || cleanupModel;
         const reasoningConfig =
           route.kind === "cleanup"
             ? { ...route.config, toneStyle: await this.consumeToneStyle() }
@@ -3757,7 +3770,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
             wasCancelled
           );
           if (hasTextContent(reasoned)) processedText = reasoned;
-        } else if (route.kind === "cleanup" && isCloudCleanup) {
+        } else if (route.kind === "cleanup" && isCloudCleanup && !route.model) {
           const customPrompt = this.getCustomPrompt();
           const reasonResult = await withSessionRefresh(async () => {
             const res = await window.electronAPI.cloudReason(processedText, {
@@ -3796,7 +3809,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
             processedText = reasonResult.text;
           }
         } else if (route.kind === "cleanup") {
-          const effectiveModel = getEffectiveCleanupModel();
+          const effectiveModel = route.model || getEffectiveCleanupModel();
           if (effectiveModel) {
             const reasoned = await this.processWithReasoningModel(
               processedText,
@@ -6048,7 +6061,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
             { reasoningDurationMs: Math.round(performance.now() - reasoningStart) },
             "streaming"
           );
-        } else if (route.kind === "cleanup" && isCloudCleanup) {
+        } else if (route.kind === "cleanup" && isCloudCleanup && !route.model) {
           const customPrompt = this.getCustomPrompt();
           // ASR finished but the combined cleanup didn't: paste the raw text, as
           // any other failed cleanup does.
@@ -6110,7 +6123,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
             "streaming"
           );
         } else if (route.kind === "cleanup") {
-          const effectiveModel = getEffectiveCleanupModel();
+          const effectiveModel = route.model || getEffectiveCleanupModel();
           if (effectiveModel) {
             const reasoned = await this.processWithReasoningModel(
               finalText,

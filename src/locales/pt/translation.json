@@ -1839,6 +1839,10 @@
       "description": "Limpe transcrições, processe comandos e corrija erros preservando seu tom de voz.",
       "enableTextCleanup": "Ativar limpeza de texto",
       "enableTextCleanupDescription": "A IA remove palavras de preenchimento, corrige gramática e pontuação",
+      "longCleanup": {
+        "toggle": "Modelo separado para ditados longos",
+        "minWords": "Mínimo de palavras"
+      },
       "modes": {
         "openwhispr": "OpenWhispr Cloud",
         "providers": "Provedores na nuvem",

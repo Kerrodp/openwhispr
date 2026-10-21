@@ -94,6 +94,7 @@ import ChatAgentSettings from "./settings/ChatAgentSettings";
 import DictationAgentSettings from "./settings/DictationAgentSettings";
 import DictationTranslationSettings from "./settings/DictationTranslationSettings";
 import InferenceConfigEditor from "./settings/InferenceConfigEditor";
+import LongCleanupSettings from "./settings/LongCleanupSettings";
 import { MeetingTranscriptionPanel } from "./settings/MeetingSettings";
 import { UploadTranscriptionPanel } from "./settings/UploadSettings";
 import LanguageSelector from "./ui/LanguageSelector";
@@ -871,6 +872,7 @@ function AiModelsSection({ useCleanupModel, setUseCleanupModel, toast }: AiModel
       {useCleanupModel && (
         <>
           <InferenceConfigEditor scope="dictationCleanup" onModeChange={handleCleanupModeChange} />
+          <LongCleanupSettings />
           <GpuDeviceSelector purpose="intelligence" />
         </>
       )}

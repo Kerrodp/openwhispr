@@ -260,6 +260,8 @@ function ensureLifecycleListeners(): void {
 // follows the agent scope instead of failing as an unknown scope.
 const MANAGED_SCOPE_ALIASES: Partial<Record<ManagedEnterpriseScope, ManagedEnterpriseScope>> = {
   dictationAgentVision: "dictationAgent",
+  // Same for the long-dictation override: it is a lane of dictation cleanup.
+  dictationCleanupLong: "dictationCleanup",
 };
 
 function isManagedSelectionAllowedByPolicy(

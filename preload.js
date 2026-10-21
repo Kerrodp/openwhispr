@@ -32,6 +32,7 @@ const BYOK_KEY_BRIDGES = [
     get: "getDictationAgentVisionCustomKey",
     save: "saveDictationAgentVisionCustomKey",
   },
+  { base: "long-cleanup-custom", get: "getLongCleanupCustomKey", save: "saveLongCleanupCustomKey" },
   { base: "chat-agent-custom", get: "getChatAgentCustomKey", save: "saveChatAgentCustomKey" },
 ];
 const secretKeyApi = {};
